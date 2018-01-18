@@ -1,0 +1,523 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Electric Field</title>
+    <style type="text/css">
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: sans-serif;
+  font-size: 1rem;
+}
+
+body {
+  position: relative;
+}
+
+#description {
+  position: absolute;
+  right: 0%;
+  top: 0%;
+  padding: 1rem;
+  border-left: 1px solid #000000;
+  border-bottom: 1px solid #000000;
+  background-color: white;
+}
+
+#description h2 {
+  font-size: 1rem;
+}
+
+#description ul {
+  display: block;
+  padding-left: 2rem;
+}
+
+#description ul.hide {
+  display: none;
+}
+
+#hide {
+  float: right;
+  color: #0000ff;
+}
+    </style>
+    <script type="text/javascript">
+window.onload = function() {
+  document.querySelector('#hide').addEventListener('click', function() {
+    document.querySelector('#description > ul').classList.toggle('hide');
+  });
+
+  app.run('#canvas');
+};
+
+var app = (function() {
+  var app = {};
+
+  app.run = function(canvas) {
+    app.instance = new Application({
+      element: document.querySelector(canvas)
+    });
+
+    app.instance.run();
+
+    return app.instance;
+  };
+
+
+  var Application = function(config) {
+    this.element = config.element;
+    this.context = this.element.getContext('2d');
+    this.width = this.element.width;
+    this.height = this.element.height;
+    this.resolution = config.resolution || 15;
+    this.scale = 20;
+    this.isDragDrop = false;
+    this.selected = null;
+    this.dirty = true;
+    this.directionOnly = false;
+    this.model = null;
+    this.mouse = {
+      x: 0,
+      y: 0,
+      lastX: 0,
+      lastY: 0
+    };
+    this.framerate = {
+      show: true,
+      t: 0,
+      lastT: 0,
+      deltaT: 0,
+      n: 0,
+      fps: 0
+    };
+    this.charges = [{x: 650, y: 500, charge: 25},
+                    {x: 300, y: 300, charge: -15},
+                    {x: 400, y: 300, charge: -10},
+                    {x: 800, y: 700, charge: -20},
+                    {x: 900, y: 200, charge: 20},
+                    {x: 200, y: 800, charge: -20}];
+  };
+
+  Application.prototype = {};
+
+  Application.prototype.constructor = Application;
+
+  Application.prototype.run = function() {
+    this.init();
+    this.loop();
+  };
+
+  Application.prototype.init = function() {
+    var self = this;
+
+    window.addEventListener('resize', function(event) {
+      self.resize();
+    });
+
+    window.addEventListener('keypress', function(event) {
+      switch (event.key) {
+      case '-':
+        if (self.resolution < 100) {
+          self.resolution++;
+          self.dirty = true;
+          self.initModel();
+        }
+        break;
+      case '+':
+        if (self.resolution > 1) {
+          self.resolution--;
+          self.dirty = true;
+          self.initModel();
+        }
+        break;
+      case ' ':
+        self.directionOnly = !self.directionOnly;
+        self.dirty = true;
+        break;
+      case 'r':
+        console.log('reset');
+        self.charges = [];
+        self.dirty = true;
+        break;
+      };
+    });
+
+    var onclick = function(event) {
+      var x = event.clientX - self.element.offsetLeft,
+          y = event.clientY - self.element.offsetTop;
+
+      self.dirty = true;
+
+      if (!self.isDragDrop) {
+        var element = null;
+
+        for (var i = 0; i < self.charges.length; ++i) {
+          var c = self.charges[i],
+              d = Math.sqrt(Math.pow(c.x - x, 2) + Math.pow(c.y - y, 2));
+
+          if (d <= Math.abs(c.charge)) {
+            element = c
+            break;
+          }
+        }
+
+        if (element === null) {
+          self.charges.push({
+            x: event.clientX - self.element.offsetLeft,
+            y: event.clientY - self.element.offsetTop,
+            charge: -10,
+            selected: false
+          });
+        }
+      }
+    };
+
+    this.element.addEventListener('click', onclick);
+
+    this.element.addEventListener('dblclick', function(event) {
+      var x = event.clientX - self.element.offsetLeft,
+          y = event.clientY - self.element.offsetTop;
+
+          self.dirty = true;
+
+          for (var i = 0; i < self.charges.length; ++i) {
+            var c = self.charges[i],
+                d = Math.sqrt(Math.pow(c.x - x, 2) + Math.pow(c.y - y, 2));
+
+            if (d <= Math.abs(c.charge)) {
+              if (event.altKey) {
+                self.charges.splice(i, 1);
+                break;
+              }
+
+              if (event.shiftKey) {
+                if (c.charge == 5 || c.charge == -5)  {
+                  c.charge = -c.charge;
+                } else {
+                  c.charge -= c.charge > 0 ? 5 : -5;
+                }
+              }  else {
+                c.charge += c.charge > 0 ? 5 : -5;
+              }
+              break;
+            }
+          }
+    });
+
+    this.element.addEventListener('mousedown', function(event) {
+      var x = event.clientX - self.element.offsetLeft,
+          y = event.clientY - self.element.offsetTop;
+
+      for (var i = 0; i < self.charges.length; ++i) {
+        var c = self.charges[i],
+            d = Math.sqrt(Math.pow(c.x - x, 2) + Math.pow(c.y - y, 2));
+
+        if (d <= Math.abs(c.charge)) {
+          self.isDragDrop = true;
+          c.selected = true;
+          self.selected = c;
+          self.element.removeEventListener('click', onclick);
+          break;
+        }
+      }
+    });
+
+    this.element.addEventListener('mouseup', function(event) {
+      self.isDragDrop = false;
+
+      if (self.selected !== null) {
+        if (self.selected.moved) {
+          self.dirty = true;
+        }
+        self.selected.moved = false;
+        self.selected.selected = false;
+        self.selected = null;
+        window.setTimeout(function() {
+          self.element.addEventListener('click', onclick);
+        }, 100);
+      }
+    });
+
+    this.element.addEventListener('mousemove', function(event) {
+      var x = event.clientX - self.element.offsetLeft,
+          y = event.clientY - self.element.offsetTop;
+
+      self.mouse.x = x;
+      self.mouse.y = y;
+
+      if (self.isDragDrop && self.selected !== null) {
+        self.dirty = true;
+        self.selected.moved = true;
+        self.selected.x = x;
+        self.selected.y = y;
+      }
+    });
+
+    this.resize();
+    this.initModel();
+  };
+
+  Application.prototype.resize = function() {
+    this.element.width = this.width = window.innerWidth;
+    this.element.height = this.height = window.innerHeight;
+
+    this.dirty = true;
+    this.initModel();
+  };
+
+  Application.prototype.loop = function() {
+    var self = this;
+
+    window.requestAnimationFrame(function() {
+      self.framerate.t = (new Date).getTime();
+
+      if (self.dirty) {
+        self.calculateModel();
+        self.clear();
+        self.render();
+      }
+
+      if (self.framerate.show) {
+        self.drawFramerate();
+      }
+
+      self.dirty = false;
+
+      self.loop();
+    });
+  };
+
+  Application.prototype.clear = function() {
+    this.context.clearRect(0, 0, this.width, this.height);
+  };
+
+  Application.prototype.render = function() {
+    var width = this.width,
+        height = this.height,
+        center_x = width / 2,
+        center_y = height / 2;
+
+    this.drawElectricField();
+    this.drawElectricCharges();
+  };
+
+  Application.prototype.drawFramerate = function() {
+    var context = this.context,
+        deltaT = this.framerate.t - this.framerate.lastT;
+
+    this.framerate.n++;
+    this.framerate.lastT = this.framerate.t;
+    this.framerate.deltaT += deltaT;
+
+    context.save();
+
+    context.fillStyle = "#00ffff";
+    context.fillRect(0, 0, 25, 15);
+
+    context.fillStyle = "#000000";
+    context.font = "8px sans-serif";
+    context.fillText(this.framerate.fps + "", 8, 12);
+
+    context.restore();
+
+    if (this.framerate.deltaT > 1000) {
+      this.framerate.fps = this.framerate.n;
+      this.framerate.deltaT = 0;
+      this.framerate.n = 0;
+    }
+  };
+
+  Application.prototype.drawElectricCharges = function() {
+    var width = this.width,
+        height = this.height,
+        context = this.context;
+
+    context.save();
+
+    this.charges.forEach(function(charge) {
+      var x = charge.x,
+          y = charge.y,
+          r = Math.abs(charge.charge);
+      context.fillStyle = charge.charge > 0 ? '#ff0000' : '#00ff00';
+
+      context.beginPath();
+      context.arc(x, y, r, 0, 2 * Math.PI);
+      context.fill();
+
+      context.beginPath();
+
+      if (charge.charge < 0) {
+        context.moveTo(x - r/2, y);
+        context.lineTo(x + r/2, y);
+        context.moveTo(x, y - r/2);
+        context.lineTo(x, y + r/2);
+      } else {
+        context.moveTo(x - r/2, y);
+        context.lineTo(x + r/2, y);
+      }
+
+      context.stroke();
+
+      if (charge.selected) {
+        context.beginPath();
+        context.arc(x, y, r, 0, 2 * Math.PI);
+        context.stroke();
+      }
+    });
+
+    context.restore();
+  };
+
+  Application.prototype.drawElectricField = function() {
+    var width = this.width,
+        height = this.height,
+        offset = this.resolution,
+        columnWidth = width / offset,
+        columnHeight = height / offset,
+        context = this.context;
+
+    for (var x = 0; x < columnWidth; ++x) {
+      for (var y = 0; y < columnHeight; ++y) {
+        var f = this.model[x][y];
+
+        if (f.r == 0) {
+          continue
+        }
+
+        this.drawVector(f, x, y);
+      }
+    }
+  };
+
+  Application.prototype.drawVector = function(f, x, y) {
+    var width = this.width,
+        height = this.height,
+        offset = this.resolution,
+        columnWidth = width / offset,
+        columnHeight = height / offset,
+        context = this.context,
+        intensity = Math.round(255 * (f.r * 5) / offset)
+        r = this.directionOnly ? this.resolution : f.r;
+
+    if (r == 0) {
+      return;
+    }
+
+    context.save();
+
+    context.strokeStyle = 'rgb(0, 0, '+ intensity + ')';
+
+    context.translate(x * offset + offset/2, y * offset + offset/2);
+    context.rotate(f.angle);
+
+    context.beginPath();
+    context.moveTo(0, 0);
+    context.lineTo(r, 0);
+    context.stroke();
+
+    context.translate(r, 0);
+    context.rotate(Math.PI/2)
+
+    context.beginPath();
+    context.moveTo(0, 0);
+    context.lineTo(r/3, r/3);
+    context.stroke();
+
+    context.beginPath();
+    context.moveTo(0, 0);
+    context.lineTo(-r/3, r/3);
+    context.stroke();
+
+    context.restore();
+  };
+
+  Application.prototype.calculateForce = function(x, y) {
+    var force = {x: 0, y: 0};
+
+    for (var i = 0; i < this.charges.length; ++i) {
+      var c0 = this.charges[i],
+          c1 = {x: c0.x - x, y: c0.y - y},
+          d = Math.sqrt(Math.pow(c1.x, 2) + Math.pow(c1.y, 2)),
+          f = c0.charge / Math.pow(d, 2),
+          f0 = Math.sqrt(Math.pow(c1.x * f, 2) + Math.pow(c1.y * f, 2));
+
+      if (c0.charge > 0 && d < c0.charge) {
+        return {x: 0, y: 0};
+      }
+
+      force.x += c1.x * f;
+      force.y += c1.y * f;
+    };
+
+    r = Math.sqrt(Math.pow(force.x, 2) + Math.pow(force.y, 2)) * this.scale
+
+    return {
+      r: r > this.resolution ? this.resolution : r,
+      angle: Math.atan2(force.y, force.x)
+    };
+  };
+
+  Application.prototype.initModel = function() {
+    var model = [],
+        width = this.width / this.resolution,
+        height = this.height / this.resolution;
+
+    for (var x = 0; x < width; ++x) {
+      var column = [];
+
+      for (var y = 0; y < height; ++y) {
+        column.push({r: 0, angle: 0});
+      }
+
+      model.push(column);
+    }
+
+    this.model = model;
+  };
+
+  Application.prototype.calculateModel = function() {
+    var model = this.model,
+        resolution = this.resolution;
+
+    for (var x = 0; x < model.length; ++x) {
+      for (var y = 0; y < model[x].length; ++y) {
+        var force = this.calculateForce(
+          x * resolution + resolution/2,
+          y * resolution + resolution/2
+        );
+
+        model[x][y] = force;
+      }
+    }
+  };
+
+  return app;
+})();
+    </script>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <div id="description">
+      <h2>Controls: <span id="hide">(hide)</span></h2>
+      <ul>
+        <li>Click anywhere to add a charge</li>
+        <li>Alt double click to remove a charge</li>
+        <li>Double click to increase charge</li>
+        <li>Shift double click to decrease charge</li>
+        <li><strong><em>r</strong></em> to reset</li>
+        <li><strong><em>+</strong></em> to increase resolution</li>
+        <li><strong><em>-</strong></em> to decrease resolution</li>
+        <li>Space to toggle sizing</li>
+      </ul>
+    </div>
+  </body>
+</html>
