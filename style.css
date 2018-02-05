@@ -98,6 +98,10 @@ a:visited {
     overflow: scroll;
 }
 
+#main section > * + pre {
+    margin-top: 1rem;
+}
+
 #main section p {
     padding: 1rem 1rem 0;
     font-size: 1rem;
