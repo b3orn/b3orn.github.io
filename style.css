@@ -65,19 +65,8 @@ body {
 }
 
 #main > * {
-    padding: 1rem;
-}
-
-#main > *:first-child {
-    padding-top: 0;
-}
-
-#main > pre:first-child {
-    padding-top: 1rem;
-}
-
-#main > *:last-child {
-    padding-bottom: 0;
+    padding: 0 1rem;
+    margin-bottom: 1rem;
 }
 
 #main h2,
@@ -110,6 +99,7 @@ body {
 }
 
 #main pre {
+    padding: 1rem;
     font-size: 1.2rem;
     line-height: 1.2;
     font-family: monospace;
