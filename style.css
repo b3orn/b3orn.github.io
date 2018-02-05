@@ -77,7 +77,7 @@ body {
 #main h3,
 #main h4,
 #main h5 {
-    padding-bottom: 0;
+    line-height: 1.2;
 }
 
 #main h2 {
