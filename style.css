@@ -65,7 +65,7 @@ a:visited {
 #main section h4,
 #main section h5,
 #main section h6 {
-    padding: 1rem;
+    padding: 1rem 1rem 0;
     line-height: 1.2;
 }
 
@@ -118,61 +118,6 @@ a:visited {
     color: inherit;
     text-decoration: underline;
 }
-
-
-/*#main > * {
-    padding: 0 1rem;
-    margin-bottom: 1rem;
-}
-
-#main > * + h2 {
-    padding-top: 1rem;
-}
-
-#main h2,
-#main h3,
-#main h4,
-#main h5 {
-    line-height: 1.2;
-}
-
-#main h2 {
-    font-size: 2rem;
-}
-
-#main h3 {
-    font-size: 1.75rem;
-}
-
-#main h4 {
-    font-size: 1.5rem;
-}
-
-#main h5 {
-    font-size: 1.25rem;
-}
-
-#main p {
-    font-size: 1rem;
-    line-height: 1.2;
-    text-align: justify;
-}
-
-#main pre {
-    padding: 1rem;
-    font-size: 1.2rem;
-    line-height: 1.2;
-    font-family: monospace;
-    background-color: #eeeeee;
-    overflow: scroll;
-}
-
-#main ul {
-    
-}
-
-*/
-
 
 #footer {
     padding: 0.5rem;
