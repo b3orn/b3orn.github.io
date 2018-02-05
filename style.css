@@ -69,6 +69,10 @@ body {
     margin-bottom: 1rem;
 }
 
+#main > * + h2 {
+    padding-top: 1rem;
+}
+
 #main h2,
 #main h3,
 #main h4,
