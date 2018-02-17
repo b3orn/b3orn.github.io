@@ -17,6 +17,10 @@ body {
     font-family: serif;
 }
 
+a {
+    color: inherit;
+}
+
 a:visited {
     color: inherit;
 }
@@ -136,12 +140,29 @@ a:visited {
 #footer ul li {
     list-style: none;
     padding: 0.5rem 0;
-    margin: 0 0.5rem;
     font-size: 1rem;
     line-height: 1;
+}
+
+#footer ul li:first-child {
+    padding-left: 0.5rem;
+}
+
+#footer ul li:last-child {
+    padding-right: 0.5rem;
 }
 
 #footer ul li a {
     color: inherit;
     text-decoration: underline;
+}
+
+#footer ul li::after {
+    margin: 0 0.5rem;
+    content: "|";
+}
+
+#footer ul li:last-child::after {
+    margin: 0;
+    content: none;
 }
