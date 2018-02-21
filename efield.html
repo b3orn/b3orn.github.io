@@ -84,6 +84,7 @@ var app = (function() {
     this.selected = null;
     this.dirty = true;
     this.directionOnly = false;
+    this.colorMode = true;
     this.model = null;
     this.mouse = {
       x: 0,
@@ -146,6 +147,10 @@ var app = (function() {
       case 'r':
         console.log('reset');
         self.charges = [];
+        self.dirty = true;
+        break;
+      case 'c':
+        self.colorMode = !self.colorMode;
         self.dirty = true;
         break;
       };
@@ -351,9 +356,15 @@ var app = (function() {
 
       context.beginPath();
       context.arc(x, y, r, 0, 2 * Math.PI);
-      context.fill();
 
-      context.beginPath();
+      if (charge.selected) {
+        context.save();
+        context.fill();
+        context.restore();
+      } else {
+        context.fill();
+        context.beginPath();
+      }
 
       if (charge.charge < 0) {
         context.moveTo(x - r/2, y);
@@ -366,12 +377,6 @@ var app = (function() {
       }
 
       context.stroke();
-
-      if (charge.selected) {
-        context.beginPath();
-        context.arc(x, y, r, 0, 2 * Math.PI);
-        context.stroke();
-      }
     });
 
     context.restore();
@@ -385,6 +390,11 @@ var app = (function() {
         columnHeight = height / offset,
         context = this.context;
 
+    context.save();
+    if (!this.colorMode) {
+      context.beginPath();
+    }
+
     for (var x = 0; x < columnWidth; ++x) {
       for (var y = 0; y < columnHeight; ++y) {
         var f = this.model[x][y];
@@ -396,6 +406,11 @@ var app = (function() {
         this.drawVector(f, x, y);
       }
     }
+
+    if (!this.colorMode) {
+      context.stroke();
+    }
+    context.restore();
   };
 
   Application.prototype.drawVector = function(f, x, y) {
@@ -406,38 +421,34 @@ var app = (function() {
         columnHeight = height / offset,
         context = this.context,
         intensity = Math.round(255 * (f.r * 5) / offset)
-        r = this.directionOnly ? this.resolution : f.r;
+        r = this.directionOnly ? this.resolution : f.r,
+        x_offset = x * offset + offset/2,
+        y_offset = y * offset + offset/2,
+        x = x_offset + r * Math.cos(f.angle),
+        y = y_offset + r * Math.sin(f.angle),
+        l = r/3,
+        a_1 = f.angle + Math.PI/2 + Math.PI/4,
+        a_2 = f.angle - Math.PI/2 - Math.PI/4;
 
     if (r == 0) {
       return;
     }
 
-    context.save();
+    if (this.colorMode) {
+      context.strokeStyle = 'rgb(0, 0, '+ intensity + ')';
 
-    context.strokeStyle = 'rgb(0, 0, '+ intensity + ')';
+      context.beginPath();
+    }
 
-    context.translate(x * offset + offset/2, y * offset + offset/2);
-    context.rotate(f.angle);
-
-    context.beginPath();
-    context.moveTo(0, 0);
-    context.lineTo(r, 0);
-    context.stroke();
-
-    context.translate(r, 0);
-    context.rotate(Math.PI/2)
-
-    context.beginPath();
-    context.moveTo(0, 0);
-    context.lineTo(r/3, r/3);
-    context.stroke();
-
-    context.beginPath();
-    context.moveTo(0, 0);
-    context.lineTo(-r/3, r/3);
-    context.stroke();
-
-    context.restore();
+    context.moveTo(x_offset, y_offset);
+    context.lineTo(x, y);
+    context.lineTo(x + l * Math.cos(a_1), y + l * Math.sin(a_1));
+    context.moveTo(x, y);
+    context.lineTo(x + l * Math.cos(a_2), y + l * Math.sin(a_2));
+    
+    if (this.colorMode) {
+      context.stroke();
+    }
   };
 
   Application.prototype.calculateForce = function(x, y) {
@@ -513,6 +524,7 @@ var app = (function() {
         <li>Alt double click to remove a charge</li>
         <li>Double click to increase charge</li>
         <li>Shift double click to decrease charge</li>
+        <li><strong><em>c</strong></em> to toggle color mode (disable for better performance)</li>
         <li><strong><em>r</strong></em> to reset</li>
         <li><strong><em>+</strong></em> to increase resolution</li>
         <li><strong><em>-</strong></em> to decrease resolution</li>
