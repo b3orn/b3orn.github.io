@@ -134,7 +134,7 @@ a:visited {
 #footer ul {
     display: flex;
     flex-direction: row;
-    justify-content: flex-end;
+    justify-content: center;
 }
 
 #footer ul li {
