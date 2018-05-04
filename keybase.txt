@@ -1,0 +1,56 @@
+==================================================================
+https://keybase.io/b3orn
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://www.fac3.org
+  * I am b3orn (https://keybase.io/b3orn) on keybase.
+  * I have a public key ASB2gmbAYEhiCMbLJfsw1YxxT7zInvpqKhd3u40Br-VlQgo
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "0120768266c060486208c6cb25fb30d58c714fbcc89efa6a2a1777bb8d01afe565420a",
+      "host": "keybase.io",
+      "kid": "0120768266c060486208c6cb25fb30d58c714fbcc89efa6a2a1777bb8d01afe565420a",
+      "uid": "93c5f0318cb2726735c3fa928a79b619",
+      "username": "b3orn"
+    },
+    "merkle_root": {
+      "ctime": 1525440479,
+      "hash": "f05a0e3d30d05eb49626f6e30e3f47bb227cb87063ec3280bc9c650e1a3f8815401c9d819ddcc7dff58c052d2624072d9cf2b97bd184a5cc5407f4105672cdcb",
+      "hash_meta": "b36fd3cf084c75bbea8abd78adeb00d5d4fe116427b0b70363c50f689e0f31c1",
+      "seqno": 2480469
+    },
+    "service": {
+      "entropy": "n8M+LvgUGrsgNXbPEgFs+92Y",
+      "hostname": "www.fac3.org",
+      "protocol": "https:"
+    },
+    "type": "web_service_binding",
+    "version": 2
+  },
+  "client": {
+    "name": "keybase.io go client",
+    "version": "1.0.47"
+  },
+  "ctime": 1525440502,
+  "expire_in": 504576000,
+  "prev": "4c5359e85b0f34725903fc24aaa38acb756fd7cec825348b46a84ceeabcd2078",
+  "seqno": 25,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgdoJmwGBIYgjGyyX7MNWMcU+8yJ76aioXd7uNAa/lZUIKp3BheWxvYWTESpcCGcQgTFNZ6FsPNHJZA/wkqqOKy3Vv187IJTSLRqhM7qvNIHjEIMoBDdRl1492A+BAf0xxBQyTw18B+QFnf2VV+m10UueIAgHCo3NpZ8RAdE94Eivx9jmFBWOWvH5FNGZ574VvxefZkHnlKiZgXI/AZ8UBG8r2oAUUjtZfs1JfGNiJVyuL+DZ1As+p19ocAqhzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIKr+ayC38+KAT2tfnT8M/V+Omu5cmFs1c/h3VqH3BVwEo3RhZ80CAqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/b3orn
+
+==================================================================
