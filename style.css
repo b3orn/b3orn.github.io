@@ -17,6 +17,22 @@ body {
     font-family: serif;
 }
 
+/* dark mode */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #000000;
+        color: #ffffff;
+    }
+}
+
+/* light mode */
+@media (prefers-color-scheme: light) {
+    body {
+        background-color: #ffffff;
+        color: #000000;
+    }
+}
+
 a {
     color: inherit;
 }
