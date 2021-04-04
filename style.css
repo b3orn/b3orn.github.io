@@ -10,8 +10,11 @@ html {
 }
 
 body {
-    width: inherit;
+    display: flex;
+    flex-direction: column;
     min-height: 100vh;
+    margin: 0 auto;
+    max-width: 48rem;
     background-color: #ffffff;
     color: #000000;
     font-family: serif;
@@ -39,14 +42,6 @@ a {
 
 a:visited {
     color: inherit;
-}
-
-#page {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    max-width: 48rem;
-    margin: 0 auto;
 }
 
 #header {
