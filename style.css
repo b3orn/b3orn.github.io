@@ -11,10 +11,10 @@ html {
 
 body {
     display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    margin: 0 auto;
     max-width: 48rem;
+    min-height: 100vh;
+    flex-direction: column;
+    margin: 0 auto;
     background-color: #ffffff;
     color: #000000;
     font-family: serif;
@@ -26,12 +26,22 @@ body {
         background-color: #333333;
         color: #ffffff;
     }
+
+    pre {
+        background-color: #444444;
+        color: #ffffff;
+    }
 }
 
 /* light mode */
 @media (prefers-color-scheme: light) {
     body {
         background-color: #ffffff;
+        color: #000000;
+    }
+
+    pre {
+        background-color: #eeeeee;
         color: #000000;
     }
 }
@@ -44,136 +54,137 @@ a:visited {
     color: inherit;
 }
 
-#header {
+h1 {
     padding: 3rem 1rem;
-}
-
-#header h1 {
     font-size: 3rem;
     text-align: center;
     line-height: 1;
 }
 
-#header h1 a {
+h1 a {
     text-decoration: none;
 }
 
-#header h1 a:hover {
+h1 a:hover {
     text-decoration: underline;
 }
 
-#main {
+main {
     flex: 1;
     padding: 0 1rem;
 }
 
-#main section {
+main section {
     margin-bottom: 2rem;
 }
 
-#main section header h2 {
-    padding: 0 1rem;
-}
-
-#main section h2,
-#main section h3,
-#main section h4,
-#main section h5,
-#main section h6 {
-    padding: 1rem 1rem 0;
+main h2,
+main h3,
+main h4,
+main h5,
+main h6 {
+    padding: 1rem;
     line-height: 1.2;
 }
 
-#main section h2 {
+main h2:first-child {
+    padding-top: 0;
+}
+
+main h2 {
     font-size: 2em;
 }
 
-#main section h3 {
+main h3 {
     font-size: 1.8rem;
 }
 
-#main section h4 {
+main h4 {
     font-size: 1.6rem;
 }
 
-#main section h5 {
+main h5 {
     font-size: 1.4rem;
 }
 
-#main section h6 {
+main h6 {
     font-size: 1.2rem;
 }
 
-#main section pre {
+main pre {
     padding: 1rem;
-    font-size: 1.2rem;
+    font-size: 1rem;
     line-height: 1.2;
     font-family: monospace;
-    background-color: #eeeeee;
     overflow: scroll;
 }
 
-#main section > * + pre {
+main pre + * {
     margin-top: 1rem;
 }
 
-#main section p {
-    padding: 1rem 1rem 0;
+main p {
+    padding: 0 1rem 1rem;
     font-size: 1rem;
-    line-height: 1rem;
+    line-height: 1.2;
     text-align: justify;
 }
 
-#main section ul {
-    padding: 1rem 1rem 0;
+main img {
+    max-width: 46rem;
+    padding: 0 0 1rem;
 }
 
-#main section ul li {
+main ul {
+    padding: 0 1rem 1rem;
+}
+
+main ul li {
     font-size: 1rem;
     line-height: 1.2;
 }
 
-#main section ul li a {
+main ul li a {
     color: inherit;
     text-decoration: underline;
 }
 
-#footer {
-    padding: 0.5rem;
+footer {
+    padding: 0 1rem;
 }
 
-#footer ul {
+footer ul {
     display: flex;
     flex-direction: row;
     justify-content: center;
 }
 
-#footer ul li {
+footer ul li {
     list-style: none;
-    padding: 0.5rem 0;
+    padding: 1rem 0;
     font-size: 1rem;
     line-height: 1;
 }
 
-#footer ul li:first-child {
-    padding-left: 0.5rem;
+footer ul li:first-child {
+    padding-left: 1rem;
 }
 
-#footer ul li:last-child {
-    padding-right: 0.5rem;
+footer ul li:last-child {
+    padding-right: 1rem;
 }
 
-#footer ul li a {
+footer ul li a {
     color: inherit;
     text-decoration: underline;
 }
 
-#footer ul li::after {
+footer ul li::after {
     margin: 0 0.5rem;
     content: "|";
 }
 
-#footer ul li:last-child::after {
+footer ul li:last-child::after {
     margin: 0;
     content: none;
 }

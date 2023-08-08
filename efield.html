@@ -81,6 +81,7 @@ var app = (function() {
     this.width = this.element.width;
     this.height = this.element.height;
     this.resolution = config.resolution || 15;
+    this.distance = 1;
     this.scale = 20;
     this.isDragDrop = false;
     this.selected = null;
@@ -88,6 +89,8 @@ var app = (function() {
     this.directionOnly = false;
     this.colorMode = true;
     this.model = null;
+    this.maxForce = 0;
+    this.showCharges = true;
     this.mouse = {
       x: 0,
       y: 0,
@@ -142,6 +145,19 @@ var app = (function() {
           self.initModel();
         }
         break;
+      case 'w':
+      console.log('s');
+        if (self.distance < 100) {
+          self.distance += 0.1;
+          self.dirty = true;
+        }
+        break
+      case 's':
+        if (self.distance > 1) {
+          self.distance -= 0.1;
+          self.dirty = true;
+        }
+        break;
       case ' ':
         self.directionOnly = !self.directionOnly;
         self.dirty = true;
@@ -153,6 +169,10 @@ var app = (function() {
         break;
       case 'c':
         self.colorMode = !self.colorMode;
+        self.dirty = true;
+        break;
+      case 'h':
+        self.showCharges = !self.showCharges;
         self.dirty = true;
         break;
       };
@@ -313,8 +333,11 @@ var app = (function() {
         center_x = width / 2,
         center_y = height / 2;
 
+    this.drawBackground();
     this.drawElectricField();
-    this.drawElectricCharges();
+    if (this.showCharges) {
+      this.drawElectricCharges();
+    }
   };
 
   Application.prototype.drawFramerate = function() {
@@ -343,6 +366,35 @@ var app = (function() {
     }
   };
 
+  Application.prototype.drawBackground = function() {
+    var width = this.width,
+        height = this.height,
+        offset = this.resolution,
+        columnWidth = width / offset,
+        columnHeight = height / offset,
+        context = this.context;
+
+    context.save();
+
+    for (var x = 0; x < columnWidth; ++x) {
+      for (var y = 0; y < columnHeight; ++y) {
+        var f = this.model[x][y],
+            hue = 180 - 180 * f.r * this.distance / this.maxForce;
+
+        context.fillStyle = 'hsl(' + hue + ',100%,50%)';
+
+        context.fillRect(
+          x * offset,
+          y * offset,
+          offset,
+          offset
+        );
+      }
+    }
+
+    context.restore();
+  };
+
   Application.prototype.drawElectricCharges = function() {
     var width = this.width,
         height = this.height,
@@ -350,8 +402,9 @@ var app = (function() {
 
     context.save();
 
-    this.charges.forEach(function(charge) {
-      var x = charge.x,
+    for (var i = 0; i < this.charges.length; ++i) {
+      var charge = this.charges[i],
+          x = charge.x,
           y = charge.y,
           r = Math.abs(charge.charge);
       context.fillStyle = charge.charge > 0 ? '#ff0000' : '#00ff00';
@@ -368,18 +421,16 @@ var app = (function() {
         context.beginPath();
       }
 
+      context.moveTo(x - r/2, y);
+      context.lineTo(x + r/2, y);
+
       if (charge.charge < 0) {
-        context.moveTo(x - r/2, y);
-        context.lineTo(x + r/2, y);
         context.moveTo(x, y - r/2);
         context.lineTo(x, y + r/2);
-      } else {
-        context.moveTo(x - r/2, y);
-        context.lineTo(x + r/2, y);
       }
 
       context.stroke();
-    });
+    }
 
     context.restore();
   };
@@ -423,7 +474,7 @@ var app = (function() {
         columnHeight = height / offset,
         context = this.context,
         intensity = Math.round(255 * (f.r * 5) / offset)
-        r = this.directionOnly ? this.resolution : f.r,
+        r = this.directionOnly ? this.resolution : (f.r > offset ? offset : f.r),
         x_offset = x * offset + offset/2,
         y_offset = y * offset + offset/2,
         x = x_offset + r * Math.cos(f.angle),
@@ -447,25 +498,26 @@ var app = (function() {
     context.lineTo(x + l * Math.cos(a_1), y + l * Math.sin(a_1));
     context.moveTo(x, y);
     context.lineTo(x + l * Math.cos(a_2), y + l * Math.sin(a_2));
-    
+
     if (this.colorMode) {
       context.stroke();
     }
   };
 
-  Application.prototype.calculateForce = function(x, y) {
+  Application.prototype.calculateField = function(x, y) {
+    /* We omit the factor 1 / (4 * Math.PI * 8.85e-12) for better scaling */
     var force = {x: 0, y: 0};
 
     for (var i = 0; i < this.charges.length; ++i) {
       var c0 = this.charges[i],
-          c1 = {x: c0.x - x, y: c0.y - y},
+          c1 = {x: (c0.x - x)/this.distance, y: (c0.y - y)/this.distance},
           d = Math.sqrt(Math.pow(c1.x, 2) + Math.pow(c1.y, 2)),
           f = c0.charge / Math.pow(d, 2),
           f0 = Math.sqrt(Math.pow(c1.x * f, 2) + Math.pow(c1.y * f, 2));
 
-      if (c0.charge > 0 && d < c0.charge) {
-        return {x: 0, y: 0};
-      }
+      /*if (this.showCharges && c0.charge > 0 && d < c0.charge/this.distance) {
+        return {r: 0, angle: 0};
+      }*/
 
       force.x += c1.x * f;
       force.y += c1.y * f;
@@ -473,8 +525,12 @@ var app = (function() {
 
     r = Math.sqrt(Math.pow(force.x, 2) + Math.pow(force.y, 2)) * this.scale
 
+    if (r > this.maxForce) {
+      this.maxForce = r;
+    }
+
     return {
-      r: r > this.resolution ? this.resolution : r,
+      r: r,
       angle: Math.atan2(force.y, force.x)
     };
   };
@@ -494,6 +550,7 @@ var app = (function() {
       model.push(column);
     }
 
+    this.maxForce = 0;
     this.model = model;
   };
 
@@ -501,9 +558,11 @@ var app = (function() {
     var model = this.model,
         resolution = this.resolution;
 
+    this.maxForce = 0;
+
     for (var x = 0; x < model.length; ++x) {
       for (var y = 0; y < model[x].length; ++y) {
-        var force = this.calculateForce(
+        var force = this.calculateField(
           x * resolution + resolution/2,
           y * resolution + resolution/2
         );
@@ -526,6 +585,7 @@ var app = (function() {
         <li>Alt double click to remove a charge</li>
         <li>Double click to increase charge</li>
         <li>Shift double click to decrease charge</li>
+        <li><strong><em>h</strong></em> to toggle charges</li>
         <li><strong><em>c</strong></em> to toggle color mode (disable for better performance)</li>
         <li><strong><em>r</strong></em> to reset</li>
         <li><strong><em>+</strong></em> to increase resolution</li>
