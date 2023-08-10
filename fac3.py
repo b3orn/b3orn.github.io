@@ -30,7 +30,7 @@ def get_title(md, tokens):
         return
 
     title_html = RendererHTML().render(title_tokens, md.options, {})
-    return bs4.BeautifulSoup(title_html, "lxml").h1.text
+    return bs4.BeautifulSoup(title_html, "html.parser").h1.text
 
 
 @click.command()
