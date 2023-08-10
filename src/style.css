@@ -51,18 +51,19 @@ a:visited {
     color: inherit;
 }
 
-h1 {
+header {
     padding: 3rem 1rem 1rem;
     font-size: 3rem;
+    font-weight: bold;
     text-align: center;
     line-height: 1;
 }
 
-h1 a {
+header a {
     text-decoration: none;
 }
 
-h1 a:hover {
+header a:hover {
     text-decoration: underline;
 }
 
@@ -81,6 +82,7 @@ main section {
     margin-bottom: 2rem;
 }
 
+main h1,
 main h2,
 main h3,
 main h4,
@@ -90,10 +92,12 @@ main h6 {
     line-height: 1.5;
 }
 
+main h1,
 main h2:first-child {
     padding-top: 0;
 }
 
+main h1,
 main h2 {
     font-size: 2rem;
 }
