@@ -1,0 +1,5 @@
+beautifulsoup4
+click
+jinja2
+markdown-it-py[plugins]
+python-frontmatter
