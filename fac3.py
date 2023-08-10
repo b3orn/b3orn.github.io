@@ -36,7 +36,9 @@ def get_title(md, tokens):
 @click.command()
 @click.argument("src-dir", type=click.Path(exists=True))
 @click.option("-b", "--build-dir", default=".", type=click.Path())
-@click.option("-t", "--template-dir", default="_templates", type=click.Path(exists=True))
+@click.option(
+    "-t", "--template-dir", default="_templates", type=click.Path(exists=True)
+)
 def main(src_dir, build_dir, template_dir):
     env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(template_dir),
@@ -54,7 +56,9 @@ def main(src_dir, build_dir, template_dir):
         os.mkdir(build_dir)
 
     for path, dirs, files in os.walk(src_dir):
-        dst_path = os.path.normpath(os.path.join(build_dir, os.path.relpath(path, src_dir)))
+        dst_path = os.path.normpath(
+            os.path.join(build_dir, os.path.relpath(path, src_dir))
+        )
 
         for dirname in dirs:
             dir_path = os.path.join(dst_path, dirname)
@@ -87,10 +91,12 @@ def main(src_dir, build_dir, template_dir):
 
             print(src_name, "=>", dst_name)
             with open(dst_name, "w") as f:
-                f.write(template.render(
-                    main=RendererHTML().render(tokens, md.options, {}),
-                    metadata=doc.metadata,
-                ))
+                f.write(
+                    template.render(
+                        main=RendererHTML().render(tokens, md.options, {}),
+                        metadata=doc.metadata,
+                    )
+                )
 
 
 if __name__ == "__main__":

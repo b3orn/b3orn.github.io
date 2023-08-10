@@ -1,7 +1,9 @@
+---
 name: Deploy to GitHub pages
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
 permissions:
   contents: read
   pages: write
@@ -16,20 +18,24 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.9"
-        cache: pip
-    - name: Install dependencies
-      run: pip install -r requirements.txt
-    - name: Build website
-      run: python fac3.py --template-dir templates --build-dir build src
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v2
-      with:
-        path: build
-    - name: Deploy
-      uses: actions/deploy-pages@v2
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Run pre-commit
+        run: pre-commit run --all-files
+      - name: Build website
+        run: python fac3.py --template-dir templates --build-dir build src
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: build
+      - name: Deploy
+        uses: actions/deploy-pages@v2
