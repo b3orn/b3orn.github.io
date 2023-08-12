@@ -61,9 +61,7 @@ def get_title(md, tokens):
 @click.command()
 @click.argument("src-dir", type=click.Path(exists=True))
 @click.option("-b", "--build-dir", default=".", type=click.Path())
-@click.option(
-    "-t", "--template-dir", default="templates", type=click.Path(exists=True)
-)
+@click.option("-t", "--template-dir", default="templates", type=click.Path(exists=True))
 @click.option("-s", "--server", default=False, is_flag=True)
 def main(src_dir, build_dir, template_dir, server):
     env = jinja2.Environment(
