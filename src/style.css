@@ -13,8 +13,6 @@ body {
     min-height: 100vh;
     flex-direction: column;
     margin: 0 auto;
-    background-color: #ffffff;
-    color: #000000;
 }
 
 /* dark mode */
@@ -154,36 +152,16 @@ main ul li a {
 }
 
 footer {
+    margin: 0 auto;
     padding: 3rem 0 1rem;
 }
 
 footer ul {
-    display: flex;
-    flex-wrap: wrap;
     padding: 0 1rem;
 }
 
-@media screen and (min-width: 40ch) {
-    footer ul {
-        flex-direction: row;
-        justify-content: center;
-    }
-
-    footer ul li::after {
-        margin: 0 0.5rem;
-        content: "|";
-    }
-}
-
-@media screen and (max-width: 40ch) {
-    footer ul {
-        flex-direction: column;
-        align-items: center;
-    }
-}
-
 footer ul li {
-    display: block;
+    display: inline;
     font-size: 1rem;
     line-height: 1.5;
 }
@@ -191,6 +169,11 @@ footer ul li {
 footer ul li a {
     color: inherit;
     text-decoration: underline;
+}
+
+footer ul li::after {
+    margin: 0 0.5rem;
+    content: "|";
 }
 
 footer ul li:last-child::after {
