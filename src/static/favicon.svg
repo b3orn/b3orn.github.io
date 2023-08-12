@@ -11,6 +11,7 @@
         dominant-baseline: central;
         text-anchor: middle;
         fill: #000000;
+        letter-spacing: 0;
     }
   ]]>
   </style>
