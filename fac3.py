@@ -10,6 +10,7 @@ import bs4
 import click
 import frontmatter
 import jinja2
+import yaml
 from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererHTML
 from mdit_py_plugins.front_matter import front_matter_plugin
@@ -63,8 +64,9 @@ def get_title(md, tokens):
 @click.argument("src-dir", type=click.Path(exists=True))
 @click.option("-b", "--build-dir", default=".", type=click.Path())
 @click.option("-t", "--template-dir", default="templates", type=click.Path(exists=True))
+@click.option("-e", "--env", "vars_file", type=click.Path(exists=True))
 @click.option("-s", "--server", default=False, is_flag=True)
-def main(src_dir, build_dir, template_dir, server):
+def main(src_dir, build_dir, template_dir, vars_file, server):
     today = datetime.datetime.now()
     env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(template_dir),
@@ -80,6 +82,11 @@ def main(src_dir, build_dir, template_dir, server):
 
     if not os.path.exists(build_dir):
         os.mkdir(build_dir)
+
+    vars = {}
+    if vars_file:
+        with open(vars_file) as f:
+            vars.update(yaml.load(f.read(), yaml.Loader))
 
     for path, dirs, files in os.walk(src_dir):
         dst_path = os.path.normpath(
@@ -108,6 +115,7 @@ def main(src_dir, build_dir, template_dir, server):
 
             text = env.from_string(doc.content).render(
                 metadata=doc.metadata,
+                env=vars,
                 today=today,
             )
             tokens = md.parse(text)
@@ -124,6 +132,7 @@ def main(src_dir, build_dir, template_dir, server):
                     template.render(
                         main=RendererHTML().render(tokens, md.options, {}),
                         metadata=doc.metadata,
+                        env=vars,
                         today=today,
                     )
                 )

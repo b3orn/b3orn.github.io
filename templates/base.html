@@ -13,14 +13,14 @@
     <header><a href="/">fac3.org</a></header>
     <p><em>Software, Hardware, Music & Random Stuff</em></p>
     <main>
-      {% block main %}
-      {{ main }}
-      {% endblock %}
+      {%- block main %}
+      {{+ main }}
+      {% endblock -%}
     </main>
     <footer>
       <ul>
-        <li>GPG Key: <a href="/3e7179a4.txt">3E7179A4</a></li>
-        <li><a href="mailto:contact@fac3.org">Contact</a></li>
+        <li>GPG Key: <a href="/{{ env.gpg }}.txt">{{ env.gpg | upper}}</a></li>
+        <li><a href="mailto:{{ env.contact }}">Contact</a></li>
         <li>&copy; {{ today.year }} <a href="/">b3orn</a></li>
       </ul>
     </footer>
