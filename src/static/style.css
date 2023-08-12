@@ -172,8 +172,7 @@ footer ul li a {
 }
 
 footer ul li::after {
-    margin: 0 0.5rem;
-    content: "|";
+    content: " | ";
 }
 
 footer ul li:last-child::after {
