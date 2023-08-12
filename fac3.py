@@ -3,6 +3,8 @@
 import os
 import os.path
 import shutil
+from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+
 import bs4
 import click
 import frontmatter
@@ -11,6 +13,29 @@ from markdown_it import MarkdownIt
 from markdown_it.renderer import RendererHTML
 from mdit_py_plugins.front_matter import front_matter_plugin
 from mdit_py_plugins.footnote import footnote_plugin
+
+
+PORT = 8080
+
+
+def serve_local(directory):
+    class Server(ThreadingHTTPServer):
+        def finish_request(self, request, client_address):
+            self.RequestHandlerClass(request, client_address, self, directory=directory)
+
+    class SlightlyBetterHttpRequestHandler(SimpleHTTPRequestHandler):
+        def send_head(self):
+            path = os.path.join(directory, "." + self.path)
+            if not os.path.exists(path) and os.path.exists(path + ".html"):
+                self.path = self.path + ".html"
+            return super().send_head()
+
+    with Server(("", PORT), SlightlyBetterHttpRequestHandler) as httpd:
+        try:
+            print(f"Server running on http://localhost:{PORT}")
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            pass
 
 
 def get_title(md, tokens):
@@ -37,9 +62,10 @@ def get_title(md, tokens):
 @click.argument("src-dir", type=click.Path(exists=True))
 @click.option("-b", "--build-dir", default=".", type=click.Path())
 @click.option(
-    "-t", "--template-dir", default="_templates", type=click.Path(exists=True)
+    "-t", "--template-dir", default="templates", type=click.Path(exists=True)
 )
-def main(src_dir, build_dir, template_dir):
+@click.option("-s", "--server", default=False, is_flag=True)
+def main(src_dir, build_dir, template_dir, server):
     env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(template_dir),
         keep_trailing_newline=True,
@@ -87,7 +113,7 @@ def main(src_dir, build_dir, template_dir):
 
             template = env.get_template(doc.metadata["template"])
             name = os.path.splitext(filename)[0]
-            dst_name = os.path.join(dst_path, f"{name}.html")
+            dst_name = os.path.join(dst_path, name + ".html")
 
             print(src_name, "=>", dst_name)
             with open(dst_name, "w") as f:
@@ -97,6 +123,9 @@ def main(src_dir, build_dir, template_dir):
                         metadata=doc.metadata,
                     )
                 )
+
+    if server:
+        serve_local(build_dir)
 
 
 if __name__ == "__main__":
