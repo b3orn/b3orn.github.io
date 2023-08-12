@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import datetime
 import os
 import os.path
 import shutil
@@ -64,6 +65,7 @@ def get_title(md, tokens):
 @click.option("-t", "--template-dir", default="templates", type=click.Path(exists=True))
 @click.option("-s", "--server", default=False, is_flag=True)
 def main(src_dir, build_dir, template_dir, server):
+    today = datetime.datetime.now()
     env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(template_dir),
         keep_trailing_newline=True,
@@ -104,7 +106,10 @@ def main(src_dir, build_dir, template_dir, server):
                 print(src_name, "ignored")
                 continue
 
-            text = env.from_string(doc.content).render(metadata=doc.metadata)
+            text = env.from_string(doc.content).render(
+                metadata=doc.metadata,
+                today=today,
+            )
             tokens = md.parse(text)
             if "title" not in doc.metadata:
                 doc.metadata["title"] = get_title(md, tokens)
@@ -119,6 +124,7 @@ def main(src_dir, build_dir, template_dir, server):
                     template.render(
                         main=RendererHTML().render(tokens, md.options, {}),
                         metadata=doc.metadata,
+                        today=today,
                     )
                 )
 
