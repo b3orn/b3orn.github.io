@@ -4,8 +4,8 @@ import datetime
 import os
 import os.path
 import shutil
-from urllib.parse import urlparse
 from http.server import ThreadingHTTPServer, SimpleHTTPRequestHandler
+from urllib.parse import urlparse
 
 import bs4
 import click
@@ -13,10 +13,12 @@ import frontmatter
 import jinja2
 import yaml
 from markdown_it import MarkdownIt
-from markdown_it.token import Token
 from markdown_it.renderer import RendererHTML
-from mdit_py_plugins.front_matter import front_matter_plugin
+from markdown_it.token import Token
+from mdit_py_plugins.anchors import anchors_plugin
 from mdit_py_plugins.footnote import footnote_plugin
+from mdit_py_plugins.front_matter import front_matter_plugin
+from mdit_py_plugins.tasklists import tasklists_plugin
 
 
 PORT = 8080
@@ -69,9 +71,7 @@ def images_to_figures(tokens):
             and token.children
             and token.children[0].type == "image"
         ):
-            tokens[i - 1].type = "figure_open"
             tokens[i - 1].tag = "figure"
-            tokens[i - 1].type = "figure_close"
             tokens[i + 1].tag = "figure"
             token.children.extend(
                 [
@@ -123,9 +123,7 @@ def music_links_to_audio_figures(tokens):
             ]
 
             if i >= 2 and tokens[i - 2].type != "list_item_open":
-                tokens[i - 1].type = "figure_open"
                 tokens[i - 1].tag = "figure"
-                tokens[i - 1].type = "figure_close"
                 tokens[i + 1].tag = "figure"
 
             else:
@@ -151,10 +149,12 @@ def main(src_dir, build_dir, template_dir, vars_file, server):
     )
     md = (
         MarkdownIt("commonmark")
-        .enable("table")
         .enable("strikethrough")
-        .use(front_matter_plugin)
+        .enable("table")
+        .use(anchors_plugin)
         .use(footnote_plugin)
+        .use(front_matter_plugin)
+        .use(tasklists_plugin)
     )
 
     if not os.path.exists(build_dir):
