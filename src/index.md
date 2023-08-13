@@ -3,6 +3,8 @@ template: base.html
 ---
 
 ## Projects
+- [bat](https://github.com/b3orn/bat) &mdash; Proof of concept synthesizer, rewrite in Rust in progess
+- [txsim](https://github.com/b3orn/txsim) &mdash; Transmission system simulator proof of concept
 - [motle](https://github.com/b3orn/motle) &mdash; Word guessing game based on [wordle](https://www.powerlanguage.co.uk/wordle), ~~play it [here](https://motle.fac3.org)~~ currently not hosted
 - [Corona data for Hamburg, Germany](https://github.com/b3orn/corona-hamburg/blob/master/corona-hamburg.ipynb)
 - [erl_coremidi](https://github.com/b3orn/erl_coremidi) &mdash; Erlang wrapper library for Core MIDI
