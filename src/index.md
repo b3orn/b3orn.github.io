@@ -14,10 +14,11 @@ template: base.html
 - [b3orn.github.io](https://github.com/b3orn/b3orn.github.io) &mdash; This website
 
 ## Demos
-- [2D Electric Field Simulation](./efield) (requires JavaScript)
+- [2D Electric Field Simulation](/efield) (requires JavaScript)
 
 ## Misc
-- [About](./about)
-- [GPG Key](./3e7179a4.txt)
+- [About](/about)
+- [GPG Key](/{{ env.gpg }}.txt)
 - [b3orn @ GitHub](https://github.com/b3orn)
 - [b3orn @ Stack Overflow](https://stackoverflow.com/users/1812029/b3orn)
+- [d3leted @ SoundCloud](https://soundcloud.com/b3ndrwashere) &mdash; Music

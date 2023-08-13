@@ -89,6 +89,8 @@ main h5,
 main h6 {
     padding: 1rem;
     line-height: 1.5;
+    font-weight: normal;
+    font-family: "Georgia", serif;
 }
 
 main h1,
@@ -133,9 +135,29 @@ main p {
     text-align: justify;
 }
 
-main img {
-    width: 100%;
+main figure {
+    padding: 0 1rem 1rem;
+}
+
+main figcaption {
+    display: block;
     padding: 0 0 1rem;
+    text-align: left;
+}
+
+main audio {
+    display: block;
+    width: 100%;
+}
+
+main img + figcaption {
+    padding: 1rem 0 0;
+    text-align: center;
+}
+
+main img {
+    display: block;
+    width: 100%;
 }
 
 main ul {
@@ -145,6 +167,10 @@ main ul {
 main ul li {
     font-size: 1rem;
     line-height: 1.5;
+}
+
+main ul li figure {
+    padding: 0 0 1rem;
 }
 
 main ul li a {
