@@ -1,7 +1,7 @@
-SRC_DIR=src
-BUILD_DIR=build
-TEMPLATE_DIR=templates
-ENV_FILE=fac3.yaml
+SRC_DIR := src
+BUILD_DIR := build
+TEMPLATE_DIR := templates
+ENV_FILE := fac3.yaml
 
 .PHONY: all clean
 
