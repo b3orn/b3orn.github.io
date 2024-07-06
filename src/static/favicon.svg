@@ -6,7 +6,8 @@
     }
 
     text {
-        font-family: "Georgia";
+        font-family: "Georgia", serif;
+        font-variant-numeric: oldstyle-nums;
         font-size: 75px;
         dominant-baseline: central;
         text-anchor: middle;

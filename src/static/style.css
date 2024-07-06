@@ -53,6 +53,7 @@ header {
     padding: 3rem 1rem 1rem;
     font-size: 3rem;
     font-family: "Georgia", serif;
+    font-variant-numeric: oldstyle-nums;
     font-weight: normal;
     text-align: center;
     line-height: 1;
