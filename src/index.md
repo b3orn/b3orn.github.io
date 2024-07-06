@@ -16,9 +16,12 @@ template: base.html
 ## Demos
 - [2D Electric Field Simulation](/efield) (requires JavaScript)
 
+## Blog
+- [Microcorruption CTF Solutions](/microcorruption)
+
 ## Misc
 - [About](/about)
 - [GPG Key](/{{ env.gpg }}.txt)
 - [b3orn @ GitHub](https://github.com/b3orn)
 - [b3orn @ Stack Overflow](https://stackoverflow.com/users/1812029/b3orn)
-- [d3leted @ SoundCloud](https://soundcloud.com/b3ndrwashere) &mdash; Music
+- [d3leted @ SoundCloud](https://soundcloud.com/fauxvide) &mdash; Music

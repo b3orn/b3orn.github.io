@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block main %}
+{{+ main }}
+<p><em>Published: {{ metadata.date }}</em></p>
+{% if metadata.updated %}
+<p><em>Last updated: {{ metadata.updated }}</em></p>
+{% endif %}
+{% endblock %}
