@@ -31,8 +31,48 @@ from that we can calculate the value with which we need to overwrite the flags
 as `unlock_door - 0x46a8 - 6 = 0xfeb6`.
 
 
-Solution:
+Solution 1:
 
 username = 16 * "77" + "9043" + "1624" + "b6fe"
+
+password is unimportant
+
+
+I think there should be a better solution that requires less knowledge of.
+Theretically we could just write 16 random bytes then the address where we want
+to go and then the location of the return address, but this will overwrite some
+of the code at the target location we want to go to. Specifically these lines:
+
+```
+451a:  2e4f           mov   @r15, r14
+...
+4534:  1d4f 0200      mov   0x2(r15), r13
+4538:  8d4e 0000      mov   r14, 0x0(r13)
+```
+
+The main problem with this approach is that control flow in `free` depends on
+the values stored at the address we want to go to, over which we only get
+control if we inject code. The "previous" address should be set to where we
+locate our code, which will be the beginning of the username `0x240e`, and the
+"next" address should be the location of the return address of `free`, in this
+case `0x4394`. Due to the overwriting the first three words become useless and
+in my opinion this is unavoidable. Without too much knowledge we have to brute
+force some code that doesn't cause too much interference, no jumps, no
+modifications of the `pc` register and so on, additionally we need an even
+value at the flag offset, otherwise nothing gets written the way we want. The
+code that I finally injected was:
+
+```
+mov  #0x1010, 0x2(r6)
+call #0x4564
+```
+
+The `mov` instruction is three words long and is corrupted to `clr 0xe(r6)`
+which causes no problems.
+
+
+Solution 2:
+
+username = "b64010100200b01264457777777777770e249443"
 
 password is unimportant
