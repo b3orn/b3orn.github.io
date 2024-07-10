@@ -20,3 +20,4 @@ Solutions to the
 - 2024-07-07 [Jakarta](10-jakarta)
 - 2024-07-07 [Addis Ababa](11-addis-ababa)
 - 2024-07-07 [Novosibirsk](12-novosibirsk)
+- 2024-07-10 [Algiers](13-algiers)
