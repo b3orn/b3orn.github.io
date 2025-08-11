@@ -90,6 +90,7 @@ var app = (function() {
     this.colorMode = true;
     this.model = null;
     this.maxForce = 0;
+    this.minForce = null;
     this.showCharges = true;
     this.mouse = {
       x: 0,
@@ -372,14 +373,16 @@ var app = (function() {
         offset = this.resolution,
         columnWidth = width / offset,
         columnHeight = height / offset,
-        context = this.context;
+        context = this.context,
+        minForce = 20 * Math.log10(this.minForce * this.distance / this.maxForce);
 
     context.save();
 
     for (var x = 0; x < columnWidth; ++x) {
       for (var y = 0; y < columnHeight; ++y) {
         var f = this.model[x][y],
-            hue = 180 - 180 * f.r * this.distance / this.maxForce;
+            field = 20 * Math.log10(f.r * this.distance / this.maxForce),
+            hue = (300 + 330 * ((field - minForce) / minForce) % 360);
 
         context.fillStyle = 'hsl(' + hue + ',100%,50%)';
 
@@ -527,6 +530,10 @@ var app = (function() {
 
     if (r > this.maxForce) {
       this.maxForce = r;
+    }
+
+    if (this.minForce === null || r < this.minForce) {
+      this.minForce = r;
     }
 
     return {
