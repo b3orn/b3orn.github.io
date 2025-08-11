@@ -1,4 +1,4 @@
-image: ubuntu/python
+image: ubuntu
 create-pages:
   pages:
     publish: public
