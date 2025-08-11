@@ -1,5 +1,5 @@
 SRC_DIR := src
-BUILD_DIR := build
+BUILD_DIR := public
 TEMPLATE_DIR := templates
 ENV_FILE := fac3.yaml
 
