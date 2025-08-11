@@ -11,7 +11,7 @@ template: base.html
 - [ire](https://github.com/b3orn/ire) &mdash; 16-bit register based virtual machine
 - [mania](https://github.com/b3orn/mania) &mdash; Lisp interpreter
 - [random](https://github.com/b3orn/random) &mdash; Random stuff
-- [b3orn.github.io](https://github.com/b3orn/b3orn.github.io) &mdash; This website
+- [b3ndr.gitlab.io](https://gitlab.com/b3ndr/b3ndr.gitlab.io) &mdash; This website
 
 ## Demos
 - [2D Electric Field Simulation](/efield) (requires JavaScript)
