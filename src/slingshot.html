@@ -1,0 +1,419 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Slingshot</title>
+    <style type="text/css">
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: sans-serif;
+  font-size: 1rem;
+}
+
+body {
+  position: relative;
+  background-color: #ffffff;
+  color: #000000;
+}
+    </style>
+    <script type="text/javascript">
+window.onload = function() {
+  slingshot.run("#canvas");
+};
+
+var slingshot = (function() {
+  var slingshot = {};
+
+  slingshot.run = function(canvas) {
+    if (slingshot.instance !== undefined) {
+        return slingshot.instance;
+    }
+
+    slingshot.instance = new Slingshot({
+      canvas: document.querySelector(canvas)
+    });
+
+    slingshot.instance.run();
+
+    return slingshot.instance;
+  };
+
+
+  var Slingshot = function(config) {
+    this.canvas = config.canvas;
+    this.context = this.canvas.getContext("2d");
+    this.width = this.canvas.width;
+    this.height = this.canvas.height;
+    this.isDragDrop = false;
+    this.dirty = true;
+    this.started = false;
+    this.success = null;
+    this.mouse = {
+      x: 0,
+      y: 0,
+      lastX: 0,
+      lastY: 0
+    };
+    this.framerate = {
+      show: true,
+      t: 0,
+      lastT: 0,
+      deltaT: 0,
+      n: 0,
+      fps: 0
+    };
+    this.stars = [];
+    this.planets = [];
+    this.spaceship = {
+      size: 25,
+      x: 0,
+      y: 0,
+      v: {
+        x: 0,
+        y: 0,
+      },
+    };
+    this.target = {
+      size: 50,
+      x: 0,
+      y: 0,
+    };
+  };
+
+  Slingshot.prototype = {};
+
+  Slingshot.prototype.constructor = Slingshot;
+
+  Slingshot.prototype.run = function() {
+    this.init();
+    this.loop();
+  };
+
+  Slingshot.prototype.init = function() {
+    this.resize();
+    this.initEventListeners();
+    this.resetGame();
+    this.initGame();
+  };
+
+  Slingshot.prototype.initEventListeners = function() {
+    var self = this;
+
+    window.addEventListener("resize", function(event) {
+      self.resize();
+    });
+
+    this.canvas.addEventListener("mousedown", function(event) {
+      var x = event.clientX - self.canvas.offsetLeft,
+          y = event.clientY - self.canvas.offsetTop,
+          s = self.spaceship,
+          d = Math.sqrt(Math.pow(s.x - x, 2) + Math.pow(s.y - y, 2));
+
+      if (d <= 50 || !self.started) {
+        self.isDragDrop = true;
+        self.dirty = true;
+      }
+    });
+
+    this.canvas.addEventListener("mouseup", function(event) {
+      if (!self.isDragDrop) {
+        return;
+      }
+
+      self.isDragDrop = false;
+      self.dirty = true;
+      self.started = true;
+      self.spaceship.v.x = (self.spaceship.x - self.mouse.x) * 0.01;
+      self.spaceship.v.y = (self.spaceship.y - self.mouse.y) * 0.01;
+    });
+
+    this.canvas.addEventListener("mousemove", function(event) {
+      if (!self.isDragDrop) {
+        return;
+      }
+
+      self.dirty = true;
+      self.mouse.x = event.clientX - self.canvas.offsetLeft;
+      self.mouse.y = event.clientY - self.canvas.offsetTop;
+    });
+
+    window.addEventListener("keypress", function(event) {
+      switch (event.key) {
+      case "r":
+        self.dirty = true;
+        self.resetGame();
+        break;
+      };
+    });
+  };
+
+  Slingshot.prototype.initGame = function() {
+    var numPlanets = Math.floor(Math.random() * 4) + 3,
+        numStars = Math.floor(Math.random() * this.width * this.height * 0.001);
+
+    for (var i = 0; i < numStars; ++i) {
+        this.stars.push({
+            x: Math.floor(Math.random() * this.width),
+            y: Math.floor(Math.random() * this.height),
+        });
+    }
+
+    for (var i = 0; i < numPlanets; ++i) {
+        var p = {
+                x: Math.floor(Math.random() * this.width * 0.9) + this.width * 0.05,
+                y: Math.floor(Math.random() * this.height * 0.9) + this.height * 0.05,
+                gravity: Math.random() * 10,
+            },
+            skip = false;
+
+        var dSpaceship = Math.sqrt(
+              Math.pow(p.x - this.spaceship.x, 2)
+              + Math.pow(p.y - this.spaceship.y, 2)
+            ),
+            dTarget = Math.sqrt(
+              Math.pow(p.x - this.target.x, 2)
+              + Math.pow(p.y - this.target.y, 2)
+            );
+
+        if (dSpaceship <= p.gravity * 10 + 8 * this.spaceship.size || dTarget <= p.gravity * 10 + 2 * this.target.size) {
+          numPlanets++;
+          continue;
+        }
+
+        for (var o of this.planets) {
+            var d = Math.sqrt(Math.pow(p.x - o.x, 2) + Math.pow(p.y - o.y, 2));
+
+            if (d <= (p.gravity + o.gravity) * 10) {
+                skip = true;
+                numPlanets++;
+                break;
+            }
+        }
+
+        if (!skip) {
+            this.planets.push(p);
+        }
+    }
+  };
+
+  Slingshot.prototype.resetGame = function() {
+    this.spaceship.x = 4 * this.spaceship.size;
+    this.spaceship.y = this.height - 4 * this.spaceship.size;
+    this.spaceship.v.x = 0;
+    this.spaceship.v.y = 0;
+
+    this.target.x = this.width - this.target.size;
+    this.target.y = this.target.size;
+
+    this.success = null;
+    this.started = false;
+  };
+
+  Slingshot.prototype.resize = function() {
+    this.canvas.width = this.width = window.innerWidth;
+    this.canvas.height = this.height = window.innerHeight;
+
+    this.dirty = true;
+  };
+
+  Slingshot.prototype.loop = function() {
+    var self = this;
+
+    window.requestAnimationFrame(function() {
+      self.framerate.t = (new Date).getTime();
+
+      self.updateState();
+
+      if (self.dirty || self.started) {
+        self.clear();
+        self.render();
+      }
+
+      if (self.framerate.show) {
+        self.drawFramerate();
+      }
+
+      self.dirty = false;
+
+      self.loop();
+    });
+  };
+
+  Slingshot.prototype.updateState = function() {
+    var dt = this.framerate.t - this.framerate.lastT
+
+    if (!this.started) {
+      return;
+    }
+
+    if (this.spaceship.x < this.spaceship.size
+        || this.spaceship.x > this.width - this.spaceship.size
+        || this.spaceship.y < this.spaceship.size
+        || this.spaceship.y > this.height - this.spaceship.size) {
+      this.dirty = this.started;
+      this.started = false;
+      this.success = false;
+
+      return;
+    }
+
+    var d = Math.sqrt(
+      Math.pow(this.spaceship.x - this.target.x, 2)
+      + Math.pow(this.spaceship.y - this.target.y, 2)
+    );
+
+    if (d < this.spaceship.size + this.target.size) {
+      this.dirty = this.started;
+      this.started = false;
+      this.success = true;
+
+      return;
+    }
+
+    for (var p of this.planets) {
+      var d = Math.sqrt(
+        Math.pow(this.spaceship.x - p.x, 2)
+        + Math.pow(this.spaceship.y - p.y, 2)
+      );
+
+      this.spaceship.v.x += 5 * p.gravity * dt * (p.x - this.spaceship.x) / Math.pow(d, 3);
+      this.spaceship.v.y += 5 * p.gravity * dt * (p.y - this.spaceship.y) / Math.pow(d, 3);
+
+      if (d < (p.gravity * 10 + this.spaceship.size)) {
+        this.dirty = this.started;
+        this.started = false;
+        this.success = false;
+
+        return;
+      }
+    }
+
+    this.spaceship.x += this.spaceship.v.x * dt;
+    this.spaceship.y += this.spaceship.v.y * dt;
+  };
+
+  Slingshot.prototype.clear = function() {
+    this.context.clearRect(0, 0, this.width, this.height);
+  };
+
+  Slingshot.prototype.render = function() {
+    this.drawBackground();
+    this.drawSpaceship();
+    this.drawTarget();
+  };
+
+  Slingshot.prototype.drawFramerate = function() {
+    var context = this.context,
+        deltaT = this.framerate.t - this.framerate.lastT;
+
+    this.framerate.n++;
+    this.framerate.lastT = this.framerate.t;
+    this.framerate.deltaT += deltaT;
+
+    context.save();
+
+    context.fillStyle = "#00ffff";
+    context.fillRect(0, 0, 25, 15);
+
+    context.fillStyle = "#000000";
+    context.font = "8px sans-serif";
+    context.fillText(this.framerate.fps + "", 8, 12);
+
+    context.restore();
+
+    if (this.framerate.deltaT > 1000) {
+      this.framerate.fps = this.framerate.n;
+      this.framerate.deltaT = 0;
+      this.framerate.n = 0;
+    }
+  };
+
+  Slingshot.prototype.drawBackground = function() {
+    var width = this.width,
+        height = this.height,
+        context = this.context;
+
+    context.save();
+
+    context.fillStyle = "#000000";
+    context.fillRect(0, 0, this.width, this.height);
+
+    context.fillStyle = "#ffffff";
+
+    for (var star of this.stars) {
+        context.fillRect(star.x, star.y, 1, 1);
+    }
+
+    context.fillStyle = "#0000ff";
+
+    for (var planet of this.planets) {
+        context.beginPath();
+        context.arc(planet.x, planet.y, 10 * planet.gravity, 0, 2 * Math.PI);
+        context.fill();
+    }
+
+    context.restore();
+  };
+
+  Slingshot.prototype.drawSpaceship = function() {
+    var width = this.width,
+        height = this.height,
+        context = this.context;
+
+    context.save();
+
+    context.fillStyle = "#ff0000";
+
+    context.beginPath();
+    context.arc(this.spaceship.x, this.spaceship.y, this.spaceship.size, 0, 2 * Math.PI);
+    context.fill();
+
+    if (this.isDragDrop) {
+      context.strokeStyle = "#ff0000";
+      context.lineWidth = 5;
+
+      context.beginPath();
+      context.moveTo(this.spaceship.x, this.spaceship.y);
+      context.lineTo(
+        this.spaceship.x + (this.spaceship.x - this.mouse.x),
+        this.spaceship.y + (this.spaceship.y - this.mouse.y)
+      );
+
+      context.stroke();
+    }
+
+    context.restore();
+  };
+
+  Slingshot.prototype.drawTarget = function() {
+    var width = this.width,
+        height = this.height,
+        context = this.context;
+
+    context.save();
+
+    context.fillStyle = "#00ff00";
+
+    context.beginPath();
+    context.arc(this.target.x, this.target.y, this.target.size, 0, 2 * Math.PI);
+    context.fill();
+
+    context.restore();
+  };
+
+  return slingshot;
+})();
+    </script>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+  </body>
+</html>
